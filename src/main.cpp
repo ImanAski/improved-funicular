@@ -1,71 +1,90 @@
 #include <Arduino.h>
 #include <lvgl.h>
 #include <TFT_eSPI.h>
+#include "ui/ui.h"
+
+#include "examples/widgets/lv_example_widgets.h"
 
 TFT_eSPI tft = TFT_eSPI();
 
-static const uint16_t W = 240;
-static const uint16_t H = 320;
+static const uint16_t W = 320;
+static const uint16_t H = 240;
 
 enum { SCREENBUFFER_SIZE_PIXELS = W * H / 20 };
 
+static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[SCREENBUFFER_SIZE_PIXELS];
 
-void flush_cb(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map)
+void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 {
-    uint32_t w = (area->x2 - area->x1 + 1);
-    uint32_t h = (area->y2 - area->y1 + 1);
+  uint32_t w = (area->x2 - area->x1 + 1);
+  uint32_t h = (area->y2 - area->y1 + 1);
 
-    tft.startWrite();
-    tft.setAddrWindow(area->x1, area->y1, w, h);
-    tft.pushColors((uint16_t *)px_map, w * h, true);
-    tft.endWrite();
+  tft.startWrite();
+  tft.setAddrWindow(area->x1, area->y1, w, h);
+  tft.pushColors((uint16_t *)&color_p->full, w * h, true);
+  tft.endWrite();
 
-    lv_display_flush_ready(disp);
+  lv_disp_flush_ready(disp);
 }
 
+
 /*Set tick routine needed for LVGL internal timings*/
-static uint32_t my_tick_get_cb (void) { return millis(); }
+static uint32_t my_tick_get_cb(void) { return millis(); }
 
-void setup()
-{
+void setup() {
     Serial.begin(115200);
-
     lv_init();
 
-    Serial.println("BOOT");
-
     tft.begin();
-    tft.setRotation(0);
+    tft.setRotation(1);
+    // tft.fillScreen(TFT_BLACK);
     // tft.setSwapBytes(true);
 
 
-    static lv_disp_t *disp;
-    disp = lv_display_create(W, H);
+    // static lv_disp_t *disp;
+    // disp = lv_display_create(W, H);
+    // lv_display_t *disp = lv_tft_espi_create(W, H, buf, sizeof(buf));
+    lv_disp_draw_buf_init(&draw_buf, buf, NULL, W * 10);
 
-    lv_display_set_color_format(disp, LV_COLOR_FORMAT_RGB565);
+    static lv_disp_drv_t disp_drv;
+    lv_disp_drv_init(&disp_drv);
+    /*Change the following line to your display resolution*/
+    disp_drv.hor_res = W;
+    disp_drv.ver_res = H;
+    disp_drv.flush_cb = my_disp_flush;
+    disp_drv.draw_buf = &draw_buf;
+    lv_disp_drv_register(&disp_drv);
 
-    lv_display_set_buffers(
-        disp,
-        buf,
-        NULL,
-        sizeof(buf),
-        LV_DISPLAY_RENDER_MODE_PARTIAL
-    );
-
-    lv_display_set_flush_cb(disp, flush_cb);
-
-    lv_tick_set_cb(my_tick_get_cb);
-
-    lv_obj_t *label = lv_label_create(lv_screen_active());
-    lv_label_set_text(label, "LVGL 9 OK");
-    lv_obj_center(label);
-
-    Serial.println("READY");
+    // lv_example_btn_1();
+    ui_init();
 }
 
-void loop()
+void lv_example_btn_1(void)
 {
-    lv_timer_handler();
-    delay(5);
+    lv_obj_t * label;
+
+    lv_obj_t * btn1 = lv_btn_create(lv_scr_act());
+    // lv_obj_add_event_cb(btn1, event_handler, LV_EVENT_ALL, NULL);
+    lv_obj_align(btn1, LV_ALIGN_CENTER, 0, -40);
+
+    label = lv_label_create(btn1);
+    lv_label_set_text(label, "Button");
+    lv_obj_center(label);
+
+    lv_obj_t * btn2 = lv_btn_create(lv_scr_act());
+    // lv_obj_add_event_cb(btn2, event_handler, LV_EVENT_ALL, NULL);
+    lv_obj_align(btn2, LV_ALIGN_CENTER, 0, 40);
+    lv_obj_add_flag(btn2, LV_OBJ_FLAG_CHECKABLE);
+    lv_obj_set_height(btn2, LV_SIZE_CONTENT);
+
+    label = lv_label_create(btn2);
+    lv_label_set_text(label, "Toggle");
+    lv_obj_center(label);
+}
+
+void loop() {
+    lv_timer_handler(); /* let the GUI do its work */
+    ui_tick();
+    // delay(10);
 }
