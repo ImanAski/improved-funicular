@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <lvgl.h>
 #include <TFT_eSPI.h>
+
 #include "ui/ui.h"
 
 #include "examples/widgets/lv_example_widgets.h"
@@ -10,27 +11,44 @@ TFT_eSPI tft = TFT_eSPI();
 static const uint16_t W = 320;
 static const uint16_t H = 240;
 
+uint16_t touchCalData[5] = { 300, 3600, 300, 3600, 1 };
+
+// XPT2046_Touchscreen ts(CS_PIN);
+// #define TIRQ_PIN 22
+
 enum { SCREENBUFFER_SIZE_PIXELS = W * H / 20 };
 
 static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[SCREENBUFFER_SIZE_PIXELS];
 
-void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
-{
-  uint32_t w = (area->x2 - area->x1 + 1);
-  uint32_t h = (area->y2 - area->y1 + 1);
+void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
+    uint16_t x = 0, y = 0;
 
-  tft.startWrite();
-  tft.setAddrWindow(area->x1, area->y1, w, h);
-  tft.pushColors((uint16_t *)&color_p->full, w * h, true);
-  tft.endWrite();
-
-  lv_disp_flush_ready(disp);
+    // Check if touch is detected
+    if (tft.getTouch(&x, &y)) {
+        Serial.printf("TOUCH: %d %d\n", x, y);
+        // TFT_eSPI getTouch returns calibrated coordinates
+        // But we need to ensure they're within screen bounds
+        data->point.x = x;
+        data->point.y = y;
+        data->state = LV_INDEV_STATE_PR;
+    } else {
+        data->state = LV_INDEV_STATE_REL;
+    }
 }
 
+void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p) {
+    uint32_t w = (area->x2 - area->x1 + 1);
+    uint32_t h = (area->y2 - area->y1 + 1);
 
-/*Set tick routine needed for LVGL internal timings*/
-static uint32_t my_tick_get_cb(void) { return millis(); }
+    tft.startWrite();
+    tft.setAddrWindow(area->x1, area->y1, w, h);
+    tft.pushColors((uint16_t *) &color_p->full, w * h, true);
+    tft.endWrite();
+
+    lv_disp_flush_ready(disp);
+}
+
 
 void setup() {
     Serial.begin(115200);
@@ -38,6 +56,8 @@ void setup() {
 
     tft.begin();
     tft.setRotation(1);
+    tft.setTouch(touchCalData);
+
     // tft.fillScreen(TFT_BLACK);
     // tft.setSwapBytes(true);
 
@@ -56,15 +76,20 @@ void setup() {
     disp_drv.draw_buf = &draw_buf;
     lv_disp_drv_register(&disp_drv);
 
+    static lv_indev_drv_t indev_drv;
+    lv_indev_drv_init(&indev_drv);
+    indev_drv.type = LV_INDEV_TYPE_POINTER;
+    indev_drv.read_cb = my_touchpad_read;
+    lv_indev_drv_register(&indev_drv);
+
     // lv_example_btn_1();
     ui_init();
 }
 
-void lv_example_btn_1(void)
-{
-    lv_obj_t * label;
+void lv_example_btn_1(void) {
+    lv_obj_t *label;
 
-    lv_obj_t * btn1 = lv_btn_create(lv_scr_act());
+    lv_obj_t *btn1 = lv_btn_create(lv_scr_act());
     // lv_obj_add_event_cb(btn1, event_handler, LV_EVENT_ALL, NULL);
     lv_obj_align(btn1, LV_ALIGN_CENTER, 0, -40);
 
@@ -72,7 +97,7 @@ void lv_example_btn_1(void)
     lv_label_set_text(label, "Button");
     lv_obj_center(label);
 
-    lv_obj_t * btn2 = lv_btn_create(lv_scr_act());
+    lv_obj_t *btn2 = lv_btn_create(lv_scr_act());
     // lv_obj_add_event_cb(btn2, event_handler, LV_EVENT_ALL, NULL);
     lv_obj_align(btn2, LV_ALIGN_CENTER, 0, 40);
     lv_obj_add_flag(btn2, LV_OBJ_FLAG_CHECKABLE);
@@ -86,5 +111,5 @@ void lv_example_btn_1(void)
 void loop() {
     lv_timer_handler(); /* let the GUI do its work */
     ui_tick();
-    // delay(10);
+    delay(10);
 }
