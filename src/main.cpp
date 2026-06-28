@@ -11,7 +11,7 @@ TFT_eSPI tft = TFT_eSPI();
 static const uint16_t W = 320;
 static const uint16_t H = 240;
 
-uint16_t touchCalData[5] = { 300, 3600, 300, 3600, 1 };
+uint16_t touchCalData[5] = {300, 3600, 300, 3600, 1};
 
 // XPT2046_Touchscreen ts(CS_PIN);
 // #define TIRQ_PIN 22
@@ -19,14 +19,15 @@ uint16_t touchCalData[5] = { 300, 3600, 300, 3600, 1 };
 enum { SCREENBUFFER_SIZE_PIXELS = W * H / 20 };
 
 static lv_disp_draw_buf_t draw_buf;
-static lv_color_t buf[SCREENBUFFER_SIZE_PIXELS];
+#define BUF_LINES 40
+static lv_color_t buf[W * BUF_LINES];
+
 
 void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
     uint16_t x = 0, y = 0;
 
     // Check if touch is detected
-    if (tft.getTouch(&x, &y)) {
-        Serial.printf("TOUCH: %d %d\n", x, y);
+    if (tft.getTouch(&x, &y, 4004)) {
         // TFT_eSPI getTouch returns calibrated coordinates
         // But we need to ensure they're within screen bounds
         data->point.x = x;
@@ -36,6 +37,22 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
         data->state = LV_INDEV_STATE_REL;
     }
 }
+
+void show_splash_screen() {
+    lv_obj_t *scr = lv_scr_act();
+
+    lv_obj_set_style_bg_color(scr, lv_color_hex(0x101010), 0);
+    lv_obj_set_style_bg_opa(scr, LV_OPA_COVER, 0);
+
+    lv_obj_clean(scr); // 🔥 important: remove EEZ leftovers if any
+
+    lv_obj_t *label = lv_label_create(scr);
+    lv_label_set_text(label, "CQST");
+    lv_obj_center(label);
+
+    lv_obj_invalidate(scr);
+}
+
 
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p) {
     uint32_t w = (area->x2 - area->x1 + 1);
@@ -58,14 +75,7 @@ void setup() {
     tft.setRotation(1);
     tft.setTouch(touchCalData);
 
-    // tft.fillScreen(TFT_BLACK);
-    // tft.setSwapBytes(true);
-
-
-    // static lv_disp_t *disp;
-    // disp = lv_display_create(W, H);
-    // lv_display_t *disp = lv_tft_espi_create(W, H, buf, sizeof(buf));
-    lv_disp_draw_buf_init(&draw_buf, buf, NULL, W * 10);
+    lv_disp_draw_buf_init(&draw_buf, buf, NULL, W * BUF_LINES);
 
     static lv_disp_drv_t disp_drv;
     lv_disp_drv_init(&disp_drv);
@@ -82,7 +92,6 @@ void setup() {
     indev_drv.read_cb = my_touchpad_read;
     lv_indev_drv_register(&indev_drv);
 
-    // lv_example_btn_1();
     ui_init();
 }
 
@@ -109,7 +118,13 @@ void lv_example_btn_1(void) {
 }
 
 void loop() {
-    lv_timer_handler(); /* let the GUI do its work */
+    static uint32_t last = millis();
+    uint32_t now = millis();
+
+    lv_tick_inc(now - last);
+    last = now;
+
+    lv_timer_handler();
     ui_tick();
-    delay(10);
+    delay(5);
 }
