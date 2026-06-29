@@ -2,6 +2,7 @@
 #include <lvgl.h>
 #include <TFT_eSPI.h>
 
+#include "XPT2046_Touchscreen.h"
 #include "ui/ui.h"
 
 #include "examples/widgets/lv_example_widgets.h"
@@ -13,7 +14,7 @@ static const uint16_t H = 240;
 
 uint16_t touchCalData[5] = {300, 3600, 300, 3600, 1};
 
-// XPT2046_Touchscreen ts(CS_PIN);
+XPT2046_Touchscreen ts(6);
 // #define TIRQ_PIN 22
 
 enum { SCREENBUFFER_SIZE_PIXELS = W * H / 20 };
@@ -28,6 +29,8 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
 
     // Check if touch is detected
     if (tft.getTouch(&x, &y, 4004)) {
+        // Serial.println("Touch Detected");
+        Serial.printf("%d,%d\n", x, y);
         // TFT_eSPI getTouch returns calibrated coordinates
         // But we need to ensure they're within screen bounds
         data->point.x = x;
@@ -37,22 +40,6 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
         data->state = LV_INDEV_STATE_REL;
     }
 }
-
-void show_splash_screen() {
-    lv_obj_t *scr = lv_scr_act();
-
-    lv_obj_set_style_bg_color(scr, lv_color_hex(0x101010), 0);
-    lv_obj_set_style_bg_opa(scr, LV_OPA_COVER, 0);
-
-    lv_obj_clean(scr); // 🔥 important: remove EEZ leftovers if any
-
-    lv_obj_t *label = lv_label_create(scr);
-    lv_label_set_text(label, "CQST");
-    lv_obj_center(label);
-
-    lv_obj_invalidate(scr);
-}
-
 
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p) {
     uint32_t w = (area->x2 - area->x1 + 1);
@@ -73,7 +60,10 @@ void setup() {
 
     tft.begin();
     tft.setRotation(1);
-    tft.setTouch(touchCalData);
+    // tft.calibrateTouch(touchCalData, TFT_GREEN, TFT_BLACK, 4);
+    // tft.setTouch(touchCalData);
+    ts.begin();
+    ts.setRotation(1);
 
     lv_disp_draw_buf_init(&draw_buf, buf, NULL, W * BUF_LINES);
 
