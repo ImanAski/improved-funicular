@@ -5,7 +5,10 @@
 #ifndef SERIAL_INPUT_H
 #define SERIAL_INPUT_H
 
-void serial_input_init(void);
-void serial_input_poll(void);
+namespace SerialInput {
+    void serial_input_init(void);
+
+    void serial_input_poll(void);
+}
 
 #endif //SERIAL_INPUT_H

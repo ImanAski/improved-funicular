@@ -22,6 +22,10 @@ namespace {
     bool s_parse_error = false;
 
     void reset_parser() {
+        s_state = ParseState::WaitSof;
+        s_packet = {};
+        s_index = 0;
+        s_checksum = 0;
     }
 }
 
@@ -74,6 +78,22 @@ bool Protocol::parseByte(uint8_t b, Packet &out) {
     }
     return false;
 }
+
+void Protocol::send(uint8_t type, const uint8_t *payload, uint8_t len) {
+    uint8_t checksum = type ^ len;
+
+    Serial1.write(kSof);
+    Serial1.write(type);
+    Serial1.write(len);
+
+    for (uint8_t i = 0; i < len; i++) {
+        Serial1.write(payload[i]);
+        checksum ^= payload[i];
+    }
+
+    Serial1.write(checksum);
+}
+
 
 void Protocol::sendPacket(const uint8_t *data, uint8_t payloadLen) {
     uint8_t checksum = 0;

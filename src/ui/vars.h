@@ -13,7 +13,11 @@ extern "C" {
 // Flow global variables
 
 enum FlowGlobalVariables {
-    FLOW_GLOBAL_VARIABLE_NONE
+    FLOW_GLOBAL_VARIABLE_VERSION = 0,
+    FLOW_GLOBAL_VARIABLE_UI_THEME = 1,
+    FLOW_GLOBAL_VARIABLE_BIAS_VOLTAGE = 2,
+    FLOW_GLOBAL_VARIABLE_AMP_MAX_OUT = 3,
+    FLOW_GLOBAL_VARIABLE_VOA_OUT_PWR = 4
 };
 
 // Native global variables

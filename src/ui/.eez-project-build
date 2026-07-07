@@ -13,6 +13,9 @@
     "styles.h",
     "ui.c",
     "ui.h",
+    "ui_image_cqst.c",
+    "ui_image_icons8_laser_50.c",
+    "ui_image_icons8_laser_50__1_.c",
     "vars.h"
   ]
 }

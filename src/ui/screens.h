@@ -13,18 +13,40 @@ enum ScreensEnum {
     _SCREEN_ID_FIRST = 1,
     SCREEN_ID_SPLASH = 1,
     SCREEN_ID_MAIN = 2,
-    SCREEN_ID_SETTINGS = 3,
-    _SCREEN_ID_LAST = 3
+    SCREEN_ID_HELP = 3,
+    SCREEN_ID_MENU = 4,
+    _SCREEN_ID_LAST = 4
 };
 
 typedef struct _objects_t {
     lv_obj_t *splash;
     lv_obj_t *main;
-    lv_obj_t *settings;
+    lv_obj_t *help;
+    lv_obj_t *menu;
     lv_obj_t *obj0;
     lv_obj_t *obj1;
+    lv_obj_t *helpers;
     lv_obj_t *obj2;
     lv_obj_t *obj3;
+    lv_obj_t *content;
+    lv_obj_t *toggles;
+    lv_obj_t *bias_toggle;
+    lv_obj_t *obj4;
+    lv_obj_t *obj5;
+    lv_obj_t *obj6;
+    lv_obj_t *obj7;
+    lv_obj_t *obj8;
+    lv_obj_t *obj9;
+    lv_obj_t *obj10;
+    lv_obj_t *obj11;
+    lv_obj_t *obj12;
+    lv_obj_t *obj13;
+    lv_obj_t *obj14;
+    lv_obj_t *obj15;
+    lv_obj_t *helpers_1;
+    lv_obj_t *menu_back_btn;
+    lv_obj_t *obj16;
+    lv_obj_t *obj17;
 } objects_t;
 
 extern objects_t objects;
@@ -35,8 +57,11 @@ void tick_screen_splash();
 void create_screen_main();
 void tick_screen_main();
 
-void create_screen_settings();
-void tick_screen_settings();
+void create_screen_help();
+void tick_screen_help();
+
+void create_screen_menu();
+void tick_screen_menu();
 
 void create_user_widget_bar(lv_obj_t *parent_obj, void *flowState, int startWidgetIndex);
 void tick_user_widget_bar(void *flowState, int startWidgetIndex);
@@ -48,6 +73,38 @@ void tick_screen_by_id(enum ScreensEnum screenId);
 void tick_screen(int screen_index);
 
 void create_screens();
+
+// Groups
+
+typedef struct _groups_t {
+    lv_group_t *main_grp;
+    lv_group_t *help_grp;
+    lv_group_t *menu_grp;
+} groups_t;
+
+extern groups_t groups;
+
+void ui_create_groups();
+
+// Color themes
+
+enum Themes {
+    THEME_ID_DEFAULT,
+    THEME_ID_DARK_THEME,
+};
+enum Colors {
+    COLOR_ID_BG_MAIN,
+    COLOR_ID_BG_BTN_TOGGLE,
+    COLOR_ID_BG_BTN_TOGGLE_CHECKED,
+    COLOR_ID_BTN_TOGGLE_TEXT,
+    COLOR_ID_MAIN_ITEM_BG,
+    COLOR_ID_BORDER_BTN_TOGGLE,
+    COLOR_ID_MAIN_ITEM_BORDER,
+    COLOR_ID_MAIN_ITEM_TEXT_COLOR,
+    COLOR_ID_TEXT_DEFAULT,
+};
+void change_color_theme(uint32_t themeIndex);
+extern uint32_t theme_colors[2][9];
 
 #ifdef __cplusplus
 }
