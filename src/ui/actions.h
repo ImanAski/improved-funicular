@@ -16,6 +16,12 @@ enum {
 };
 extern void action_toggle_changed(lv_event_t * e);
 
+extern void action_theme_changed(lv_event_t * e);
+extern void action_button_clicked(lv_event_t * e);
+extern void action_value_edit_mode(lv_event_t * e);
+extern void action_edit_mode_activated(lv_event_t * e);
+extern void action_edit_mode_deactivated(lv_event_t * e);
+
 #ifdef __cplusplus
 }
 #endif

@@ -26,10 +26,10 @@ public:
             // cfg.pin_sclk = 18;
             // cfg.pin_mosi = 19;
             // cfg.pin_miso = 16;
-            cfg.pin_dc   = 15;
-            cfg.pin_sclk = 2;
-            cfg.pin_mosi = 3;
-            cfg.pin_miso = 4;
+            cfg.pin_dc   = 14;
+            cfg.pin_sclk = 7;
+            cfg.pin_mosi = 6;
+            cfg.pin_miso = 5;
 
             _bus.config(cfg);
             _panel.setBus(&_bus);
@@ -39,8 +39,8 @@ public:
         {
             auto cfg = _panel.config();
 
-            cfg.pin_cs  = 5;
-            cfg.pin_rst = 14;
+            cfg.pin_cs  = 4;
+            cfg.pin_rst = 15;
 
             cfg.panel_width  = SCREEN_WIDTH;
             cfg.panel_height = SCREEN_HEIGHT;

@@ -9,9 +9,14 @@
 #define UART_TX 0
 #define UART_RX 1
 
-#define ENC_A_PIN 9
-#define ENC_B_PIN 10
-#define ENC_BUTTON_PIN 11
+
+#define RS48_TX 0
+#define RS48_RX 1
+#define RS48_IO 10
+
+#define ENC_A_PIN 27
+#define ENC_B_PIN 28
+#define ENC_BUTTON_PIN 29
 
 #define WIDTH 320
 #define HEIGHT 240

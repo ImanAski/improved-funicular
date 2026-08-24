@@ -8,6 +8,7 @@
 
 enum class PacketType : uint8_t {
     UserAction = 0x03,
+    ThemeChange = 0x07
 };
 
 enum class PageId : uint8_t {

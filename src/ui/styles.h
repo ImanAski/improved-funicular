@@ -20,6 +20,7 @@ void remove_style_screen_bg(lv_obj_t *obj);
 
 // Style: main_item
 lv_style_t *get_style_main_item_MAIN_DEFAULT();
+lv_style_t *get_style_main_item_MAIN_FOCUSED();
 void add_style_main_item(lv_obj_t *obj);
 void remove_style_main_item(lv_obj_t *obj);
 

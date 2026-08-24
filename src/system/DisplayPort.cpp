@@ -6,11 +6,13 @@
 
 #include <lvgl.h>
 
+#include "Adafruit_ILI9341.h"
 #include "Config.h"
 #include "protocol.h"
 #include "RotaryInput.h"
 #include "TFT_eSPI.h"
 #include "UARTPort.h"
+#include "controller/ThemeController.h"
 #include "controller/ToggleController.h"
 #include "ui/screens.h"
 #include "ui/ui.h"
@@ -19,6 +21,7 @@
 
 namespace DisplayPort {
     TFT_eSPI tft = TFT_eSPI();
+    // Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST, TFT_MISO);
 
     enum { SCREENBUFFER_SIZE_PIXELS = WIDTH * HEIGHT / 20 };
 
@@ -44,18 +47,43 @@ namespace DisplayPort {
 
         tft.startWrite();
         tft.setAddrWindow(area->x1, area->y1, w, h);
+        Serial.printf(
+            "pixel=%04X size=%d\n",
+            color_p[0].full,
+            sizeof(lv_color_t)
+        );
+        // tft.writePixels(
+        //     (uint16_t *)color_p,
+        //     w * h);
         tft.pushColors((uint16_t *) &color_p->full, w * h, true);
         tft.endWrite();
 
         lv_disp_flush_ready(disp);
     }
 
+    extern "C" void action_value_edit_mode(lv_event_t *e) {
+        auto data = reinterpret_cast<uintptr_t>(lv_event_get_user_data(e));
+        Serial.println(data);
+    }
+
+    extern "C" void action_theme_changed(lv_event_t *e) {
+        ThemeController::toggleDarkTheme();
+    }
+
     extern "C" void action_screen_main_loaded(lv_event_t *e) {
         lv_indev_set_group(enc_indev, groups.main_grp);
-        uint8_t payload[] = {
-
-        };
     }
+
+    extern "C" void action_edit_mode_activated(lv_event_t *e) {
+        lv_indev_set_group(enc_indev, groups.edit_grp);
+        // Serial.println("[ACTIVATED] edit mode");
+    }
+
+    extern "C" void action_edit_mode_deactivated(lv_event_t *e) {
+        lv_indev_set_group(enc_indev, groups.main_grp);
+    }
+
+    extern "C" void action_button_clicked(lv_event_t *e) {}
 
     extern "C" void action_screen_about_loaded(lv_event_t *e) {
         lv_indev_set_group(enc_indev, groups.help_grp);
@@ -81,6 +109,8 @@ namespace DisplayPort {
 
         tft.begin();
         tft.setRotation(1);
+
+        // tft.fillScreen(ILI9341_BLUE);
 
         lv_disp_draw_buf_init(&draw_buf, buf, NULL, WIDTH * BUF_LINES);
         rotary.begin();
