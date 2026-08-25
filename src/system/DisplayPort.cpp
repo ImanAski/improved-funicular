@@ -28,16 +28,18 @@ namespace DisplayPort {
     static lv_disp_draw_buf_t draw_buf;
     static lv_color_t buf[WIDTH * BUF_LINES];
 
-    RotaryInput rotary(ENC_B_PIN, ENC_A_PIN, ENC_BUTTON_PIN);
+    RotaryInput rotary(ENC_A_PIN, ENC_B_PIN, ENC_BUTTON_PIN);
     lv_indev_t *enc_indev = nullptr;
 
     void encoder_read(lv_indev_drv_t *drv, lv_indev_data_t *data) {
         int diff = rotary.getDiff();
         bool pressed = rotary.isPressed();
 
+        if (diff != 0)
+            Serial.println(diff);
         // Serial.printf("encoder_read: diff=%d pressed=%d\n", diff, pressed);
 
-        data->enc_diff = diff;
+        data->enc_diff = static_cast<int16_t>(diff);
         data->state = pressed ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
     }
 
@@ -47,14 +49,6 @@ namespace DisplayPort {
 
         tft.startWrite();
         tft.setAddrWindow(area->x1, area->y1, w, h);
-        Serial.printf(
-            "pixel=%04X size=%d\n",
-            color_p[0].full,
-            sizeof(lv_color_t)
-        );
-        // tft.writePixels(
-        //     (uint16_t *)color_p,
-        //     w * h);
         tft.pushColors((uint16_t *) &color_p->full, w * h, true);
         tft.endWrite();
 
@@ -75,18 +69,15 @@ namespace DisplayPort {
     }
 
     extern "C" void action_edit_mode_activated(lv_event_t *e) {
-        lv_indev_set_group(enc_indev, groups.edit_grp);
-        // Serial.println("[ACTIVATED] edit mode");
     }
 
     extern "C" void action_edit_mode_deactivated(lv_event_t *e) {
-        lv_indev_set_group(enc_indev, groups.main_grp);
     }
 
-    extern "C" void action_button_clicked(lv_event_t *e) {}
+    extern "C" void action_button_clicked(lv_event_t *e) {
+    }
 
     extern "C" void action_screen_about_loaded(lv_event_t *e) {
-        lv_indev_set_group(enc_indev, groups.help_grp);
     }
 
     extern "C" void action_screen_menu_loaded(lv_event_t *e) {
@@ -134,6 +125,10 @@ namespace DisplayPort {
         i_drv.type = LV_INDEV_TYPE_ENCODER;
         i_drv.read_cb = encoder_read;
         enc_indev = lv_indev_drv_register(&i_drv);
+
+        ui_create_groups();
+
+        ui_init();
     }
 
     void update() {

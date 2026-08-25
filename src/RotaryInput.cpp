@@ -11,7 +11,8 @@ RotaryInput::RotaryInput(uint8_t pinA,
     : encoder(pinA, pinB),
       btn(buttonPin, true, true),
       lastPosition(0),
-      diff(0)
+      diff(0),
+      _buttonPin(buttonPin)
 { }
 
 void RotaryInput::begin() {
@@ -29,7 +30,7 @@ void RotaryInput::update() {
 }
 
 bool RotaryInput::isPressed() {
-    return btn.state() == LOW;
+    return digitalRead(_buttonPin) == LOW;
 }
 
 

@@ -28,6 +28,7 @@ private:
 
     long lastPosition;
     int diff;
+    uint8_t _buttonPin;
 };
 
 #endif //ROTARYINPUT_H

@@ -4,8 +4,12 @@
 //
 // #ifndef PROTOCOL_H
 // #define PROTOCOL_H
-// #include <cstdint>
 //
+// #include <Arduino.h>
+//
+// namespace RSPort {
+//     class RS485;
+// }
 //
 // struct MasterPacket {
 //     uint8_t header;
@@ -32,25 +36,69 @@
 //
 // class Protocol {
 // public:
-//     Protocol(HardwareSerial &serial, uint8_t directionPin);
 //
-//     void begin(uint32_t baudrate);
+//     static constexpr uint8_t SYNC = 0xAA;
+//
+//     static constexpr uint8_t TYPE_MASTER = 0x01;
+//     static constexpr uint8_t TYPE_SLAVE  = 0x02;
+//
+//     static constexpr uint8_t MASTER_SIZE = 20;
+//     static constexpr uint8_t SLAVE_SIZE  = 20;
+//
+//     Protocol(RSPort::RS485 &rs485);
 //
 //     void send(const SlavePacket &packet);
 //
-//     void poll(MasterPacket &packet);
+//     bool poll(MasterPacket &packet);
 //
 //     void update();
 //
-//     bool available() const;
-//
-//     static bool parseByte(uint8_t byte);
-//
 // private:
-//     HardwareSerial &serial_;
-//     uint8_t direction_pin_;
 //
-//     void setTransmit(bool enable);
+//     RSPort::RS485 &rs485_;
+//
+//     uint8_t rxBuffer_[64];
+//     uint8_t rxIndex_ = 0;
+//
+//     uint8_t expectedLength_ = 0;
+//
+//     enum State {
+//         WAIT_SYNC,
+//         READ_TYPE,
+//         READ_LENGTH,
+//         READ_PAYLOAD,
+//         READ_CRC_LOW,
+//         READ_CRC_HIGH
+//     };
+//
+//     State state_ = WAIT_SYNC;
+//
+//     uint8_t packetType_ = 0;
+//     uint16_t receivedCrc_ = 0;
+//
+//     bool processByte(uint8_t byte);
+//
+//     bool parseMaster(
+//         const uint8_t *data,
+//         uint8_t length,
+//         MasterPacket &packet
+//     );
+//
+//     uint16_t crc16(
+//         const uint8_t *data,
+//         size_t length
+//     );
+//
+//     void resetParser();
+//
+//     static void put16(
+//         uint8_t *buffer,
+//         uint16_t value
+//     );
+//
+//     static uint16_t get16(
+//         const uint8_t *buffer
+//     );
 // };
 //
-// #endif //PROTOCOL_H
+// #endif

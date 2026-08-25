@@ -9,7 +9,7 @@
 
 namespace UI {
     void init() {
-        ui_create_groups();
-        ui_init();
+        // ui_create_groups();
+        // ui_init();
     }
 }
