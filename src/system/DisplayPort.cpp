@@ -12,8 +12,8 @@
 #include "RotaryInput.h"
 #include "TFT_eSPI.h"
 #include "UARTPort.h"
+#include "controller/ParameterController.h"
 #include "controller/ThemeController.h"
-#include "controller/ToggleController.h"
 #include "ui/screens.h"
 #include "ui/ui.h"
 
@@ -66,6 +66,8 @@ namespace DisplayPort {
 
     extern "C" void action_screen_main_loaded(lv_event_t *e) {
         lv_indev_set_group(enc_indev, groups.main_grp);
+        ParameterController::attachMainGroup();
+        lv_indev_wait_release(lv_indev_get_act());
     }
 
     extern "C" void action_edit_mode_activated(lv_event_t *e) {
@@ -75,31 +77,29 @@ namespace DisplayPort {
     }
 
     extern "C" void action_button_clicked(lv_event_t *e) {
+        ParameterController::requestCalibration();
     }
 
     extern "C" void action_screen_about_loaded(lv_event_t *e) {
+        lv_indev_set_group(enc_indev, groups.help_grp);
+        lv_indev_wait_release(lv_indev_get_act());
     }
 
     extern "C" void action_screen_menu_loaded(lv_event_t *e) {
         lv_indev_set_group(enc_indev, groups.menu_grp);
-        uint8_t payload[] = {0x10, 0x33, 0x23, 0x52};
-        UARTPort::send(0x01, payload, sizeof(payload));
+        lv_indev_wait_release(lv_indev_get_act());
     }
 
     extern "C" void action_toggle_changed(lv_event_t *e) {
-        auto index = reinterpret_cast<uintptr_t>(lv_event_get_user_data(e));
-        const ControlInfo &info = kControlMap[index];
-
         uint8_t value = lv_obj_has_state(lv_event_get_target(e), LV_STATE_CHECKED);
-
-        ToggleController::toggle(info, value);
+        ParameterController::setDitherOn(value);
     }
 
     void init() {
         lv_init();
 
         tft.begin();
-        tft.setRotation(1);
+        tft.setRotation(3);
 
         // tft.fillScreen(ILI9341_BLUE);
 
@@ -114,12 +114,6 @@ namespace DisplayPort {
         disp_drv.draw_buf = &draw_buf;
         lv_disp_drv_register(&disp_drv);
 
-        // static lv_indev_drv_t indev_drv;
-        // lv_indev_drv_init(&indev_drv);
-        // indev_drv.type = LV_INDEV_TYPE_POINTER;
-        // indev_drv.read_cb = my_touchpad_read;
-        // lv_indev_drv_register(&indev_drv);
-
         static lv_indev_drv_t i_drv;
         lv_indev_drv_init(&i_drv);
         i_drv.type = LV_INDEV_TYPE_ENCODER;
@@ -129,6 +123,12 @@ namespace DisplayPort {
         ui_create_groups();
 
         ui_init();
+
+        ParameterController::init();
+    }
+
+    lv_indev_t *encoder_indev() {
+        return enc_indev;
     }
 
     void update() {

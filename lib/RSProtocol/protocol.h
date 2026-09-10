@@ -33,6 +33,10 @@ struct SlavePacket {
 
 class Protocol {
 public:
+    static constexpr uint8_t SYNC = 0xAA;
+    static constexpr uint8_t TYPE_MASTER = 0x01;
+    static constexpr uint8_t TYPE_SLAVE = 0x02;
+
     explicit Protocol(Stream &stream);
 
     void send(const SlavePacket &packet);
@@ -40,7 +44,8 @@ public:
     bool poll(MasterPacket &packet);
 
 private:
-    static constexpr uint8_t PAYLOAD_SIZE = 20;
+    static constexpr uint8_t PAYLOAD_SIZE = 19;
+    static constexpr uint8_t MASTER_PAYLOAD_SIZE = 20;
     static constexpr size_t RX_BUFFER_SIZE = 64;
 
     bool processByte(uint8_t byte);
@@ -54,6 +59,16 @@ private:
     Stream &stream_;
 
     uint8_t rxBuffer_[RX_BUFFER_SIZE];
+    uint8_t rxIndex_ = 0;
+
+    enum State : uint8_t {
+        WAIT_SYNC,
+        READ_TYPE,
+        READ_LEN,
+        READ_PAYLOAD,
+    };
+
+    State state_ = WAIT_SYNC;
 };
 
 }

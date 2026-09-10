@@ -15,11 +15,6 @@
 #define RS48_IO 10
 #define RS485_BAUDRATE 9600
 
-#define RS48_DEBUG_ENABLE 1
-#define RS48_DEBUG_RX_PIN 17
-#define RS48_DEBUG_TX_PIN 18
-#define RS48_DEBUG_GRB 1
-
 #define ENC_A_PIN 27
 #define ENC_B_PIN 28
 #define ENC_BUTTON_PIN 29
@@ -65,11 +60,7 @@
 #define HEIGHT 240
 
 #ifndef PROTOCOL_DEBUG
-#define PROTOCOL_DEBUG 0
-#endif
-
-#ifndef RS485_DEBUG_DISPLAY
-#define RS485_DEBUG_DISPLAY 0
+#define PROTOCOL_DEBUG 1
 #endif
 
 #endif //CONFIG_H

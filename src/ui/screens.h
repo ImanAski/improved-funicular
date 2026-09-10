@@ -15,8 +15,7 @@ enum ScreensEnum {
     SCREEN_ID_MAIN = 2,
     SCREEN_ID_HELP = 3,
     SCREEN_ID_MENU = 4,
-    SCREEN_ID_ITEM_SETTINGS = 5,
-    _SCREEN_ID_LAST = 5
+    _SCREEN_ID_LAST = 4
 };
 
 typedef struct _objects_t {
@@ -24,35 +23,39 @@ typedef struct _objects_t {
     lv_obj_t *main;
     lv_obj_t *help;
     lv_obj_t *menu;
-    lv_obj_t *item_settings;
     lv_obj_t *obj0;
     lv_obj_t *obj1;
     lv_obj_t *helpers;
     lv_obj_t *menu_btn;
     lv_obj_t *about_btn;
     lv_obj_t *content;
+    lv_obj_t *bias_voltage_node;
+    lv_obj_t *bias_point_node;
+    lv_obj_t *dither_freq_node;
+    lv_obj_t *dither_amr_node;
     lv_obj_t *toggles;
     lv_obj_t *dither_toggle;
     lv_obj_t *obj2;
     lv_obj_t *obj3;
     lv_obj_t *obj4;
-    lv_obj_t *back_button;
     lv_obj_t *obj5;
     lv_obj_t *obj6;
     lv_obj_t *obj7;
     lv_obj_t *obj8;
-    lv_obj_t *bias_calibration_btn;
-    lv_obj_t *helpers_1;
-    lv_obj_t *menu_back_btn;
     lv_obj_t *obj9;
     lv_obj_t *obj10;
     lv_obj_t *obj11;
     lv_obj_t *obj12;
-    lv_obj_t *bias_calibration_btn_1;
-    lv_obj_t *helpers_2;
-    lv_obj_t *menu_back_btn_1;
     lv_obj_t *obj13;
     lv_obj_t *obj14;
+    lv_obj_t *obj15;
+    lv_obj_t *obj16;
+    lv_obj_t *obj17;
+    lv_obj_t *bias_calibration_btn;
+    lv_obj_t *helpers_1;
+    lv_obj_t *menu_back_btn;
+    lv_obj_t *obj18;
+    lv_obj_t *obj19;
 } objects_t;
 
 extern objects_t objects;
@@ -68,9 +71,6 @@ void tick_screen_help();
 
 void create_screen_menu();
 void tick_screen_menu();
-
-void create_screen_item_settings();
-void tick_screen_item_settings();
 
 void create_user_widget_bar(lv_obj_t *parent_obj, void *flowState, int startWidgetIndex);
 void tick_user_widget_bar(void *flowState, int startWidgetIndex);

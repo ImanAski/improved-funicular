@@ -46,35 +46,42 @@ uint16_t Protocol::crc16(const uint8_t *data, size_t length)
 
 void Protocol::send(const SlavePacket &packet)
 {
-    // Raw 19-byte payload only, no SYNC/TYPE/LEN/CRC by design:
-    // PAYLOAD(19: FC...23).
-    uint8_t payload[PAYLOAD_SIZE];
+    uint8_t frame[3 + PAYLOAD_SIZE + 2];
     uint8_t index = 0;
 
-    payload[index++] = packet.header;
+    frame[index++] = SYNC;
+    frame[index++] = TYPE_SLAVE;
+    frame[index++] = PAYLOAD_SIZE;
 
-    put16(&payload[index], packet.ditherAmp);
+    frame[index++] = packet.header;
+
+    put16(&frame[index], packet.ditherAmp);
     index += 2;
 
-    put16(&payload[index], packet.ditherFreq);
+    put16(&frame[index], packet.ditherFreq);
     index += 2;
 
-    put16(&payload[index], packet.biasPoint);
+    put16(&frame[index], packet.biasPoint);
     index += 2;
 
-    put16(&payload[index], packet.ditherOn);
+    put16(&frame[index], packet.ditherOn);
     index += 2;
 
-    payload[index++] = packet.calibrationRequest;
+    frame[index++] = packet.calibrationRequest;
 
     for (uint8_t i = 0; i < 4; ++i) {
-        put16(&payload[index], packet.rst[i]);
+        put16(&frame[index], packet.rst[i]);
         index += 2;
     }
 
-    payload[index++] = packet.footer;
+    frame[index++] = packet.footer;
 
-    stream_.write(payload, PAYLOAD_SIZE);
+    const uint16_t crc = crc16(&frame[1], 2 + PAYLOAD_SIZE);
+
+    put16(&frame[index], crc);
+    index += 2;
+
+    stream_.write(frame, index);
 }
 
 bool Protocol::poll(MasterPacket &packet)
@@ -88,7 +95,7 @@ bool Protocol::poll(MasterPacket &packet)
         }
 
         if (processByte(static_cast<uint8_t>(value))) {
-            const bool ok = parseMaster(rxBuffer_, PAYLOAD_SIZE, packet);
+            const bool ok = parseMaster(&rxBuffer_[0], 19, packet);
             resetParser();
             if (ok) {
                 return true;
@@ -101,17 +108,29 @@ bool Protocol::poll(MasterPacket &packet)
 
 bool Protocol::processByte(uint8_t byte)
 {
-    // Sliding 19-byte window: master and slave share the same
-    // FC...23 framing, so accept any window starting with 0xFC
-    // and ending with 0x23. Own-TX echo is drained by RSPort::send,
-    // so it never reaches this parser.
-    for (uint8_t i = 0; i < PAYLOAD_SIZE - 1; i++) {
-        rxBuffer_[i] = rxBuffer_[i + 1];
-    }
-    rxBuffer_[PAYLOAD_SIZE - 1] = byte;
+    switch (state_) {
 
-    if (rxBuffer_[0] == 0xFC && rxBuffer_[PAYLOAD_SIZE - 1] == 0x23) {
-        return true;
+        case WAIT_SYNC:
+            if (byte == SYNC) {
+                state_ = READ_TYPE;
+            }
+            break;
+
+        case READ_TYPE:
+            state_ = READ_LEN;
+            break;
+
+        case READ_LEN:
+            state_ = READ_PAYLOAD;
+            rxIndex_ = 0;
+            break;
+
+        case READ_PAYLOAD:
+            rxBuffer_[rxIndex_++] = byte;
+            if (rxIndex_ >= 19) {
+                return true;
+            }
+            break;
     }
 
     return false;
@@ -119,7 +138,7 @@ bool Protocol::processByte(uint8_t byte)
 
 bool Protocol::parseMaster(const uint8_t *data, uint8_t length, MasterPacket &packet)
 {
-    constexpr uint8_t EXPECTED_SIZE = 20;
+    constexpr uint8_t EXPECTED_SIZE = 19;
 
     if (length != EXPECTED_SIZE) {
         return false;
@@ -143,9 +162,6 @@ bool Protocol::parseMaster(const uint8_t *data, uint8_t length, MasterPacket &pa
 
     packet.calibrationDone = data[index++];
 
-    // byte 10 is an extra field not documented in the spec — skip it
-    index += 1;
-
     packet.rsv[0] = get16(&data[index]);
     index += 2;
 
@@ -165,7 +181,8 @@ bool Protocol::parseMaster(const uint8_t *data, uint8_t length, MasterPacket &pa
 
 void Protocol::resetParser()
 {
-    // Sliding-window parser holds no per-frame state.
+    state_ = WAIT_SYNC;
+    rxIndex_ = 0;
 }
 
 }

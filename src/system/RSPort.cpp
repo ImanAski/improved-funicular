@@ -22,6 +22,8 @@ RS485::RS485(
 
 void RS485::begin(uint32_t baud)
 {
+    baud_ = baud;
+
     pinMode(direction_pin_, OUTPUT);
 
     // Start in receive mode.
@@ -78,11 +80,11 @@ void RS485::send(
      * implementations, so explicitly wait long enough for
      * the bytes to physically leave the UART.
      *
-     * This calculation assumes 9600 baud and 8N1:
+     * This calculation assumes 8N1:
      *
      *   1 start + 8 data + 1 stop = 10 bits/byte
      */
-    const uint32_t baud = 9600;
+    const uint32_t baud = baud_;
 
     const uint32_t transmissionTime =
         (static_cast<uint32_t>(len) * 10UL * 1000000UL)

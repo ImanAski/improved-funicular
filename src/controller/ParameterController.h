@@ -7,7 +7,7 @@
 
 #include <cstdint>
 
-#include "../system/MasterPort.h"
+#include "../../lib/RSProtocol/protocol.h"
 
 namespace ParameterController {
 
@@ -25,7 +25,7 @@ namespace ParameterController {
 
     void requestCalibration();
 
-    void onMasterPacket(const MasterPort::MasterPacket &packet);
+    void onMasterPacket(const RSProtocol::MasterPacket &packet);
     void sendState();
     void setDitherOn(uint16_t on);
 }

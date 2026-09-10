@@ -50,6 +50,7 @@ private:
 
     SoftwareSerial &serial_;
     uint8_t direction_pin_;
+    uint32_t baud_ = 9600;
 
     Adafruit_NeoPixel *pixel_ = nullptr;
 
