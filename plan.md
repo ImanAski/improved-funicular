@@ -46,9 +46,11 @@ receiving (the io pin).
 
 - committing everything before touching.
 - not touching `ui/` folder
+- doing anything that is done in a file named `worklog.md` with timestamps and author properties
 
 ## Tasks
 
 - [ ] receiving messages from slave and parsing it.
 - [ ] updating respective placeholder in display based on parse message
 - [ ] sending back the rp2040's state to master as response and start listening after it
+- [ ] ...
