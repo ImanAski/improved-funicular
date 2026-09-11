@@ -4,6 +4,24 @@
 
 #include "protocol.h"
 
+#if RS485_DEBUG
+static const char *_rs_type(uint8_t type) {
+    switch (type) {
+        case 0x01: return "MASTER";
+        case 0x02: return "SLAVE";
+        default:   return "UNKNOWN";
+    }
+}
+
+static void _rs_hex(const uint8_t *data, size_t len, const char *label) {
+    Serial.printf("[RS485] %s: ", label);
+    for (size_t i = 0; i < len; ++i) {
+        Serial.printf("%02X ", data[i]);
+    }
+    Serial.println();
+}
+#endif
+
 namespace RSProtocol {
 
 Protocol::Protocol(Stream &stream)
@@ -81,12 +99,20 @@ void Protocol::send(const SlavePacket &packet)
     put16(&frame[index], crc);
     index += 2;
 
+#if RS485_DEBUG
+    Serial.printf("[RS485] TX TYPE=%s len=%u crc=0x%04X\n", _rs_type(TYPE_SLAVE), PAYLOAD_SIZE, crc);
+    _rs_hex(frame, index, "TX FRAME");
+    Serial.printf("[RS485] TX payload: ditherAmp=%u ditherFreq=%u biasPoint=%u ditherOn=%u calReq=%u\n",
+        packet.ditherAmp, packet.ditherFreq, packet.biasPoint, packet.ditherOn, packet.calibrationRequest);
+#endif
+
     stream_.write(frame, index);
 }
 
 bool Protocol::poll(MasterPacket &packet)
 {
     while (stream_.available()) {
+        Serial.println("ttest");
 
         const int value = stream_.read();
 
@@ -98,6 +124,10 @@ bool Protocol::poll(MasterPacket &packet)
             const bool ok = parseMaster(&rxBuffer_[0], 19, packet);
             resetParser();
             if (ok) {
+#if RS485_DEBUG
+                Serial.printf("[RS485] RX TYPE=MASTER biasV=%u inputP=%u outputP=%u temp=%u calDone=%u\n",
+                    packet.biasVoltage, packet.inputPower, packet.outputPower, packet.temperature, packet.calibrationDone);
+#endif
                 return true;
             }
         }
@@ -112,21 +142,38 @@ bool Protocol::processByte(uint8_t byte)
 
         case WAIT_SYNC:
             if (byte == SYNC) {
+#if RS485_DEBUG
+                Serial.printf("[RS485] RX byte=0x%02X state=SYNC\n", byte);
+#endif
                 state_ = READ_TYPE;
             }
             break;
 
         case READ_TYPE:
+#if RS485_DEBUG
+            Serial.printf("[RS485] RX byte=0x%02X state=TYPE=%s\n", byte, _rs_type(byte));
+#endif
             state_ = READ_LEN;
             break;
 
         case READ_LEN:
+#if RS485_DEBUG
+            Serial.printf("[RS485] RX byte=0x%02X state=LEN=%u\n", byte, byte);
+#endif
             state_ = READ_PAYLOAD;
             rxIndex_ = 0;
             break;
 
         case READ_PAYLOAD:
             rxBuffer_[rxIndex_++] = byte;
+#if RS485_DEBUG
+            if (rxIndex_ == 1) {
+                Serial.printf("[RS485] RX payload start (19 bytes expected)\n");
+            }
+            if (rxIndex_ == 19) {
+                _rs_hex(rxBuffer_, 19, "RX PAYLOAD");
+            }
+#endif
             if (rxIndex_ >= 19) {
                 return true;
             }
@@ -138,7 +185,7 @@ bool Protocol::processByte(uint8_t byte)
 
 bool Protocol::parseMaster(const uint8_t *data, uint8_t length, MasterPacket &packet)
 {
-    constexpr uint8_t EXPECTED_SIZE = 19;
+    constexpr uint8_t EXPECTED_SIZE = 20;
 
     if (length != EXPECTED_SIZE) {
         return false;
@@ -181,6 +228,9 @@ bool Protocol::parseMaster(const uint8_t *data, uint8_t length, MasterPacket &pa
 
 void Protocol::resetParser()
 {
+#if RS485_DEBUG
+    Serial.printf("[RS485] Parser reset\n");
+#endif
     state_ = WAIT_SYNC;
     rxIndex_ = 0;
 }

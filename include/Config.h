@@ -63,5 +63,9 @@
 #define PROTOCOL_DEBUG 1
 #endif
 
+#ifndef RS485_DEBUG
+#define RS485_DEBUG 1
+#endif
+
 #endif //CONFIG_H
 
