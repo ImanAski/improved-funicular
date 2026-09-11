@@ -15,7 +15,7 @@ struct MasterPacket {
     uint16_t inputPower;
     uint16_t outputPower;
     uint16_t temperature;
-    uint8_t calibrationDone;
+    uint16_t calibrationDone;
     uint16_t rsv[4];
     uint8_t footer;
 };
@@ -26,8 +26,8 @@ struct SlavePacket {
     uint16_t ditherFreq;
     uint16_t biasPoint;
     uint16_t ditherOn;
-    uint8_t calibrationRequest;
-    uint16_t rst[4];
+    uint16_t calibrationRequest;
+    uint16_t rst[3];
     uint8_t footer;
 };
 
@@ -44,7 +44,7 @@ public:
     bool poll(MasterPacket &packet);
 
 private:
-    static constexpr uint8_t PAYLOAD_SIZE = 19;
+    static constexpr uint8_t PAYLOAD_SIZE = 18;
     static constexpr uint8_t MASTER_PAYLOAD_SIZE = 20;
     static constexpr size_t RX_BUFFER_SIZE = 64;
 

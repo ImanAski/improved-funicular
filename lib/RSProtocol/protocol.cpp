@@ -63,9 +63,10 @@ void Protocol::send(const SlavePacket &packet)
     put16(&frame[index], packet.ditherOn);
     index += 2;
 
-    frame[index++] = packet.calibrationRequest;
+    put16(&frame[index], packet.calibrationRequest);
+    index += 2;
 
-    for (uint8_t i = 0; i < 4; ++i) {
+    for (uint8_t i = 0; i < 3; ++i) {
         put16(&frame[index], packet.rst[i]);
         index += 2;
     }
@@ -147,7 +148,8 @@ bool Protocol::parseMaster(const uint8_t *data, uint8_t length, MasterPacket &pa
     packet.temperature = get16(&data[index]);
     index += 2;
 
-    packet.calibrationDone = data[index++];
+    packet.calibrationDone = get16(&data[index]);
+    index += 2;
 
     packet.rsv[0] = get16(&data[index]);
     index += 2;

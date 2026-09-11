@@ -39,8 +39,8 @@ struct SlavePacket {
     uint16_t ditherFreq;
     uint16_t biasPoint;
     uint16_t ditherOn;
-    uint8_t calibrationRequest;
-    uint16_t rst[4];
+    uint16_t calibrationRequest;
+    uint16_t rst[3];
     uint8_t footer;
 };
 ```
