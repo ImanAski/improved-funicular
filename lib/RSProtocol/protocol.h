@@ -62,13 +62,11 @@ private:
     uint8_t rxIndex_ = 0;
 
     enum State : uint8_t {
-        WAIT_SYNC,
-        READ_TYPE,
-        READ_LEN,
+        WAIT_HEADER,
         READ_PAYLOAD,
     };
 
-    State state_ = WAIT_SYNC;
+    State state_ = WAIT_HEADER;
 };
 
 }
