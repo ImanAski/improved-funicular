@@ -185,8 +185,6 @@ namespace ParameterController {
         s_telemetry.inputPower = static_cast<int32_t>(packet.inputPower) / 10;
         s_telemetry.outputPower = static_cast<int32_t>(packet.outputPower) / 10;
 
-        s_values[static_cast<uint8_t>(ParamId::BiasPoint)] = packet.rsv[3];
-
         if (packet.calibrationDone != 0 && s_calibrationPending) {
             s_calibrationPending = false;
             lv_obj_clear_state(objects.bias_calibration_btn, LV_STATE_DISABLED);
