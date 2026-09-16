@@ -31,6 +31,7 @@ void remove_style_main_item_text(lv_obj_t *obj);
 
 // Style: btn_default
 lv_style_t *get_style_btn_default_MAIN_DEFAULT();
+lv_style_t *get_style_btn_default_MAIN_FOCUSED();
 void add_style_btn_default(lv_obj_t *obj);
 void remove_style_btn_default(lv_obj_t *obj);
 
