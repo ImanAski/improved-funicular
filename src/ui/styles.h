@@ -10,6 +10,7 @@ extern "C" {
 // Style: btn_toggle
 lv_style_t *get_style_btn_toggle_MAIN_DEFAULT();
 lv_style_t *get_style_btn_toggle_MAIN_CHECKED();
+lv_style_t *get_style_btn_toggle_MAIN_FOCUSED();
 void add_style_btn_toggle(lv_obj_t *obj);
 void remove_style_btn_toggle(lv_obj_t *obj);
 

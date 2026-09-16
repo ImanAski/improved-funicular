@@ -32,9 +32,9 @@ namespace ParameterController {
         };
 
         const ParamCfg kParams[kParamCount] = {
-            { &objects.obj8, &objects.bias_point_node, BIAS_POINT_MIN, BIAS_POINT_MAX, BIAS_POINT_STEP, 1, 0 },
-            { &objects.obj3, &objects.dither_amr_node, DITHER_AMP_MIN, DITHER_AMP_MAX, DITHER_AMP_STEP, 4, 0 },
-            { &objects.obj9, &objects.dither_freq_node, DITHER_FREQ_MIN, DITHER_FREQ_MAX, DITHER_FREQ_STEP, 5, 0 },
+            { &objects.obj7, &objects.bias_point_node, BIAS_POINT_MIN, BIAS_POINT_MAX, BIAS_POINT_STEP, 1, 0 },
+            { &objects.obj9, &objects.dither_amr_node, DITHER_AMP_MIN, DITHER_AMP_MAX, DITHER_AMP_STEP, 4, 0 },
+            { &objects.obj8, &objects.dither_freq_node, DITHER_FREQ_MIN, DITHER_FREQ_MAX, DITHER_FREQ_STEP, 5, 0 },
         };
 
         static const char *s_bias_point_labels[] = { BIAS_POINT_0, BIAS_POINT_1, BIAS_POINT_2, BIAS_POINT_3 };

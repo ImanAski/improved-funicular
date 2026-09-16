@@ -390,7 +390,7 @@ void create_screen_main() {
                                             lv_obj_set_pos(obj, 0, 0);
                                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                             lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            lv_obj_set_style_text_font(obj, &lv_font_montserrat_8, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_font(obj, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_label_set_text_static(obj, "MENU");
                                         }
                                     }
@@ -412,7 +412,7 @@ void create_screen_main() {
                                             lv_obj_set_pos(obj, 0, 0);
                                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                                             lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-                                            lv_obj_set_style_text_font(obj, &lv_font_montserrat_8, LV_PART_MAIN | LV_STATE_DEFAULT);
+                                            lv_obj_set_style_text_font(obj, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
                                             lv_label_set_text_static(obj, "ABOUT");
                                         }
                                     }
@@ -853,7 +853,7 @@ void create_screen_main() {
                                     lv_obj_set_size(obj, LV_PCT(100), 60);
                                     lv_obj_add_event_cb(obj, event_handler_cb_main_dither_toggle, LV_EVENT_ALL, flowState);
                                     lv_obj_add_flag(obj, LV_OBJ_FLAG_CHECKABLE);
-                                    lv_obj_add_state(obj, LV_STATE_FOCUS_KEY);
+                                    lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
                                     add_style_btn_toggle(obj);
                                     lv_obj_set_style_flex_grow(obj, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
                                     {
