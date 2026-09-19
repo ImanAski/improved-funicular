@@ -8,7 +8,6 @@
 
 #include "Adafruit_ILI9341.h"
 #include "Config.h"
-#include "protocol.h"
 #include "RotaryInput.h"
 #include "TFT_eSPI.h"
 #include "UARTPort.h"

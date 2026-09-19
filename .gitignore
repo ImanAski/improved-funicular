@@ -1,1 +1,34 @@
-.pio
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# Compiledb / clangd
+compile_commands.json
+.clangd/
+.cache/
+
+# IDE — JetBrains (keep only shared project files, ignore user state)
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/shelf/
+.idea/httpRequests/
+.idea/dataSources/
+.idea/dataSources.local.xml
+
+# IDE — VS Code (keep settings/extensions/launch, ignore local)
+.vscode/ipch/
+.vscode/.ropeproject/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Zed / Zcode scratch plans (local notes)
+.zcode/
+
+# Secrets / local overrides
+*.bak
+*.local.h
